@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { CheckCircle2, Circle } from "lucide-react";
 import XPBar from "@/components/XPBar";
 import AchievementToast from "@/components/AchievementToast";
+import WeeklyReview from "@/components/WeeklyReview";
 import { checkInQuestions, XP_PER_CHECKIN } from "@/lib/data";
 import {
   getState,
@@ -99,6 +100,16 @@ export default function CheckInPage() {
 
       <div className="mb-6">
         <XPBar xp={state.xp} level={state.level} streak={state.streak} />
+      </div>
+
+      <div className="mb-6">
+        <WeeklyReview
+          state={state}
+          onStateChange={setState}
+          onAchievements={(ids) =>
+            setNewAchievements((prev) => [...prev, ...ids])
+          }
+        />
       </div>
 
       <div className="mb-4 flex items-center justify-between">

@@ -2,6 +2,7 @@ import {
   CheckInQuestion,
   ConversationTopic,
   DiscoverQuestion,
+  WeeklyReviewItem,
   Achievement,
   Title,
 } from "./types";
@@ -1413,6 +1414,118 @@ export const achievements: Achievement[] = [
     xpReward: 30,
     condition: "streak >= 3",
   },
+  {
+    id: "ach-13",
+    name: "First Reflection",
+    description: "Complete your first weekly review",
+    icon: "📋",
+    xpReward: 40,
+    condition: "totalWeeklyReviews >= 1",
+  },
+  {
+    id: "ach-14",
+    name: "Month of Growth",
+    description: "Complete 4 weekly reviews",
+    icon: "📈",
+    xpReward: 150,
+    condition: "totalWeeklyReviews >= 4",
+  },
+  {
+    id: "ach-15",
+    name: "Full Commitment",
+    description: "Complete 8 weekly reviews",
+    icon: "🏆",
+    xpReward: 300,
+    condition: "totalWeeklyReviews >= 8",
+  },
+  {
+    id: "ach-16",
+    name: "Getting to Know Her",
+    description: "Complete 10 discover questions",
+    icon: "🔎",
+    xpReward: 60,
+    condition: "totalDiscovers >= 10",
+  },
+  {
+    id: "ach-17",
+    name: "Her Story",
+    description: "Complete 50 discover questions",
+    icon: "📖",
+    xpReward: 250,
+    condition: "totalDiscovers >= 50",
+  },
+  {
+    id: "ach-18",
+    name: "Deep Connection",
+    description: "Complete 25 deep conversations",
+    icon: "💬",
+    xpReward: 150,
+    condition: "totalConversations >= 25",
+  },
+  {
+    id: "ach-19",
+    name: "Soul Mate",
+    description: "Complete 50 deep conversations",
+    icon: "💞",
+    xpReward: 300,
+    condition: "totalConversations >= 50",
+  },
+  {
+    id: "ach-20",
+    name: "Steady Presence",
+    description: "Complete 25 check-ins",
+    icon: "🤝",
+    xpReward: 80,
+    condition: "totalCheckIns >= 25",
+  },
+  {
+    id: "ach-21",
+    name: "Daily Devotion",
+    description: "Complete 50 check-ins",
+    icon: "💪",
+    xpReward: 150,
+    condition: "totalCheckIns >= 50",
+  },
+  {
+    id: "ach-22",
+    name: "Two Week Fire",
+    description: "14-day check-in streak",
+    icon: "🔥",
+    xpReward: 100,
+    condition: "streak >= 14",
+  },
+  {
+    id: "ach-23",
+    name: "Unbreakable",
+    description: "60-day check-in streak",
+    icon: "⚡",
+    xpReward: 500,
+    condition: "longestStreak >= 60",
+  },
+  {
+    id: "ach-24",
+    name: "I Know Her",
+    description: "Dismiss 10 discover questions you already know",
+    icon: "🧠",
+    xpReward: 40,
+    condition: "dismissedCount >= 10",
+  },
+  {
+    id: "ach-25",
+    name: "Master of Hearts",
+    description: "Dismiss 25 discover questions you already know",
+    icon: "❤️‍🔥",
+    xpReward: 100,
+    condition: "dismissedCount >= 25",
+  },
+  {
+    id: "ach-26",
+    name: "Celebrate Together",
+    description: "Plan 3 celebrations",
+    icon: "🎊",
+    xpReward: 100,
+    condition: "celebrationsPlanned >= 3",
+  },
 ];
 
 export const titles: Title[] = [
@@ -1485,8 +1598,75 @@ export const defaultCelebrations = [
   },
 ];
 
+export const weeklyReviewItems: WeeklyReviewItem[] = [
+  {
+    id: "wr-1",
+    area: "Vulnerability & Support",
+    question:
+      "Was I compassionate and supportive when she was vulnerable this week?",
+    description:
+      "No guilt-tripping during illness, pain, or anxiety — only reassurance and care",
+  },
+  {
+    id: "wr-2",
+    area: "Conflict & Repair",
+    question: "Did we resolve conflicts same-day without escalation?",
+    description:
+      "No yelling, insulting, or silent treatment — apology without 'but' and real repair",
+  },
+  {
+    id: "wr-3",
+    area: "Engaged Communication",
+    question: "Was I present, engaged, and curious in conversations?",
+    description:
+      "No one-word answers — reflected, validated, and asked real follow-up questions",
+  },
+  {
+    id: "wr-4",
+    area: "Validate Before Defending",
+    question: "Did I validate her feelings before defending myself?",
+    description:
+      "Acknowledged her perspective and took responsibility before sharing mine",
+  },
+  {
+    id: "wr-5",
+    area: "Check-Ins & Deep Talk",
+    question: "Did I initiate daily check-ins and a weekly deep talk?",
+    description:
+      "Phones away — 10 min daily check-in + 45 min deep talk this week",
+  },
+  {
+    id: "wr-6",
+    area: "Emotional Responsibility",
+    question: "Did I take initiative without being told this week?",
+    description: "Noticed what was needed and acted — reduced her mental load",
+  },
+  {
+    id: "wr-7",
+    area: "Attraction & Affirmation",
+    question: "Did I genuinely affirm and compliment her this week?",
+    description:
+      "At least 2 affirmations showing desire, attraction, and appreciation",
+  },
+  {
+    id: "wr-8",
+    area: "Romance & Gestures",
+    question: "Did I make intentional romantic efforts this week?",
+    description:
+      "Small gesture, planned date, or effort that shows she matters",
+  },
+  {
+    id: "wr-9",
+    area: "Proactive Growth",
+    question: "Did I take a self-driven initiative beyond the list?",
+    description:
+      "Brought a relationship topic, practiced a skill, or took a support step",
+  },
+];
+
 export const XP_PER_CHECKIN = 10;
 export const XP_PER_CONVERSATION = 25;
 export const XP_PER_DISCOVER = 15;
 export const XP_PER_CELEBRATION = 50;
+export const XP_PER_WEEKLY_REVIEW = 75;
 export const XP_PER_LEVEL = 100;

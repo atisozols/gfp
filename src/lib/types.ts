@@ -40,6 +40,15 @@ export interface DiscoverQuestion {
     | "relationships";
 }
 
+export interface WeeklyReviewItem {
+  id: string;
+  area: string;
+  question: string;
+  description: string;
+}
+
+export type WeeklyRating = "done" | "partial" | "missed";
+
 export interface Celebration {
   id: string;
   name: string;
@@ -73,6 +82,9 @@ export interface GameState {
   totalConversations: number;
   totalDiscovers: number;
   celebrationsPlanned: number;
+  plannedCelebrationIds: string[];
+  totalWeeklyReviews: number;
+  weeklyReviews: Record<string, Record<string, WeeklyRating>>; // weekKey -> { itemId -> rating }
   settings: {
     relationshipStartDate: string | null;
     partnerBirthday: string | null;

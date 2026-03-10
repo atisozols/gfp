@@ -18,6 +18,9 @@ const defaultState: GameState = {
   totalConversations: 0,
   totalDiscovers: 0,
   celebrationsPlanned: 0,
+  plannedCelebrationIds: [],
+  totalWeeklyReviews: 0,
+  weeklyReviews: {},
   settings: {
     relationshipStartDate: null,
     partnerBirthday: null,
@@ -86,6 +89,8 @@ export function checkAchievements(state: GameState): {
         "celebrationsPlanned",
         "streak",
         "longestStreak",
+        "totalWeeklyReviews",
+        "dismissedCount",
         `return ${achievement.condition}`,
       );
       unlocked = fn(
@@ -95,6 +100,8 @@ export function checkAchievements(state: GameState): {
         updatedState.celebrationsPlanned,
         updatedState.streak,
         updatedState.longestStreak,
+        updatedState.totalWeeklyReviews,
+        updatedState.dismissedDiscovers.length,
       );
     } catch {
       unlocked = false;

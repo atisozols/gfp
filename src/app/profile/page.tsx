@@ -10,6 +10,10 @@ import {
   Search,
   Gift,
   Star,
+  ClipboardCheck,
+  ChevronDown,
+  ChevronUp,
+  RotateCcw,
 } from "lucide-react";
 import XPBar from "@/components/XPBar";
 import {
@@ -21,6 +25,7 @@ import {
 } from "@/lib/data";
 import {
   getState,
+  saveState,
   getCurrentTitle,
   getNextTitle,
   getXPProgress,
@@ -29,6 +34,7 @@ import type { GameState } from "@/lib/types";
 
 export default function ProfilePage() {
   const [state, setState] = useState<GameState | null>(null);
+  const [showAdmin, setShowAdmin] = useState(false);
 
   useEffect(() => {
     setState(getState());
@@ -74,6 +80,13 @@ export default function ProfilePage() {
       value: state.celebrationsPlanned,
       color: "text-green-500",
       bg: "bg-green-50",
+    },
+    {
+      icon: ClipboardCheck,
+      label: "Weekly Reviews",
+      value: state.totalWeeklyReviews,
+      color: "text-indigo-500",
+      bg: "bg-indigo-50",
     },
   ];
 
@@ -195,6 +208,111 @@ export default function ProfilePage() {
           );
         })}
       </div>
+
+      {/* Data Management */}
+      <div className="mb-4 mt-8">
+        <button
+          onClick={() => setShowAdmin(!showAdmin)}
+          className="flex w-full items-center justify-between text-lg font-bold text-gray-900"
+        >
+          <span className="flex items-center gap-2">
+            <RotateCcw size={20} className="text-gray-400" />
+            Data Management
+          </span>
+          {showAdmin ? (
+            <ChevronUp size={18} className="text-gray-400" />
+          ) : (
+            <ChevronDown size={18} className="text-gray-400" />
+          )}
+        </button>
+        <p className="text-xs text-gray-500">
+          Fix accidental actions or reset counters
+        </p>
+      </div>
+
+      {showAdmin && (
+        <div className="mb-6 space-y-2">
+          <button
+            onClick={() => {
+              if (!state) return;
+              const achXP = achievements
+                .filter(
+                  (a) =>
+                    state.unlockedAchievements.includes(a.id) &&
+                    ["ach-8", "ach-9", "ach-26"].includes(a.id),
+                )
+                .reduce((sum, a) => sum + a.xpReward, 0);
+              const celXP = state.celebrationsPlanned * 50;
+              const totalRemove = achXP + celXP;
+              const newState: GameState = {
+                ...state,
+                celebrationsPlanned: 0,
+                plannedCelebrationIds: [],
+                xp: Math.max(0, state.xp - totalRemove),
+                level: Math.max(
+                  1,
+                  Math.floor(Math.max(0, state.xp - totalRemove) / 100) + 1,
+                ),
+                unlockedAchievements: state.unlockedAchievements.filter(
+                  (id) => !["ach-8", "ach-9", "ach-26"].includes(id),
+                ),
+              };
+              setState(newState);
+              saveState(newState);
+              localStorage.removeItem("planned-celebrations");
+            }}
+            className="flex w-full items-center justify-between rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 text-left text-sm transition-all hover:bg-orange-100"
+          >
+            <div>
+              <p className="font-medium text-orange-700">
+                Reset Celebration Data
+              </p>
+              <p className="text-xs text-orange-500">
+                Removes all celebration plans, XP, and related achievements
+              </p>
+            </div>
+            <RotateCcw size={16} className="text-orange-400" />
+          </button>
+
+          <button
+            onClick={() => {
+              if (!state) return;
+              const newState: GameState = {
+                ...state,
+                xp: 0,
+                level: 1,
+                streak: 0,
+                longestStreak: 0,
+                lastCheckInDate: null,
+                completedCheckIns: [],
+                completedConversations: [],
+                completedDiscovers: [],
+                dismissedDiscovers: [],
+                unlockedAchievements: [],
+                totalCheckIns: 0,
+                totalConversations: 0,
+                totalDiscovers: 0,
+                celebrationsPlanned: 0,
+                plannedCelebrationIds: [],
+                totalWeeklyReviews: 0,
+                weeklyReviews: {},
+              };
+              setState(newState);
+              saveState(newState);
+              localStorage.removeItem("planned-celebrations");
+            }}
+            className="flex w-full items-center justify-between rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-left text-sm transition-all hover:bg-red-100"
+          >
+            <div>
+              <p className="font-medium text-red-700">Reset All Progress</p>
+              <p className="text-xs text-red-500">
+                Resets everything except settings (name, dates)
+              </p>
+            </div>
+            <RotateCcw size={16} className="text-red-400" />
+          </button>
+        </div>
+      )}
 
       {/* Title progression */}
       <div className="mb-4 mt-8">
