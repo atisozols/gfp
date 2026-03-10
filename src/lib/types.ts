@@ -2,21 +2,42 @@ export interface CheckInQuestion {
   id: string;
   question: string;
   type: "yesno" | "scale" | "freeform";
-  category: "emotional" | "physical" | "quality-time" | "appreciation" | "communication";
+  category:
+    | "emotional"
+    | "physical"
+    | "quality-time"
+    | "appreciation"
+    | "communication";
 }
 
 export interface ConversationTopic {
   id: string;
   topic: string;
   description: string;
-  category: "dreams" | "fears" | "memories" | "values" | "future" | "hypothetical" | "emotional" | "fun";
+  category:
+    | "dreams"
+    | "fears"
+    | "memories"
+    | "values"
+    | "future"
+    | "hypothetical"
+    | "emotional"
+    | "fun";
   depth: 1 | 2 | 3;
 }
 
 export interface DiscoverQuestion {
   id: string;
   question: string;
-  category: "childhood" | "family" | "preferences" | "dreams" | "past" | "beliefs" | "daily-life" | "relationships";
+  category:
+    | "childhood"
+    | "family"
+    | "preferences"
+    | "dreams"
+    | "past"
+    | "beliefs"
+    | "daily-life"
+    | "relationships";
 }
 
 export interface Celebration {
@@ -46,6 +67,7 @@ export interface GameState {
   completedCheckIns: string[]; // question IDs
   completedConversations: string[]; // topic IDs
   completedDiscovers: string[]; // question IDs
+  dismissedDiscovers: string[]; // question IDs already known
   unlockedAchievements: string[]; // achievement IDs
   totalCheckIns: number;
   totalConversations: number;

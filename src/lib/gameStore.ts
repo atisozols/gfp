@@ -12,6 +12,7 @@ const defaultState: GameState = {
   completedCheckIns: [],
   completedConversations: [],
   completedDiscovers: [],
+  dismissedDiscovers: [],
   unlockedAchievements: [],
   totalCheckIns: 0,
   totalConversations: 0,
@@ -66,7 +67,10 @@ export function updateStreak(state: GameState): GameState {
   return { ...state, streak: newStreak, longestStreak, lastCheckInDate: today };
 }
 
-export function checkAchievements(state: GameState): { state: GameState; newAchievements: string[] } {
+export function checkAchievements(state: GameState): {
+  state: GameState;
+  newAchievements: string[];
+} {
   const newAchievements: string[] = [];
   let updatedState = { ...state };
 
@@ -82,7 +86,7 @@ export function checkAchievements(state: GameState): { state: GameState; newAchi
         "celebrationsPlanned",
         "streak",
         "longestStreak",
-        `return ${achievement.condition}`
+        `return ${achievement.condition}`,
       );
       unlocked = fn(
         updatedState.totalCheckIns,
@@ -90,7 +94,7 @@ export function checkAchievements(state: GameState): { state: GameState; newAchi
         updatedState.totalDiscovers,
         updatedState.celebrationsPlanned,
         updatedState.streak,
-        updatedState.longestStreak
+        updatedState.longestStreak,
       );
     } catch {
       unlocked = false;
@@ -98,7 +102,10 @@ export function checkAchievements(state: GameState): { state: GameState; newAchi
 
     if (unlocked) {
       updatedState = addXP(updatedState, achievement.xpReward);
-      updatedState.unlockedAchievements = [...updatedState.unlockedAchievements, achievement.id];
+      updatedState.unlockedAchievements = [
+        ...updatedState.unlockedAchievements,
+        achievement.id,
+      ];
       newAchievements.push(achievement.id);
     }
   }
@@ -106,7 +113,10 @@ export function checkAchievements(state: GameState): { state: GameState; newAchi
   return { state: updatedState, newAchievements };
 }
 
-export function getCurrentTitle(level: number): { name: string; emoji: string } {
+export function getCurrentTitle(level: number): {
+  name: string;
+  emoji: string;
+} {
   let current = titles[0];
   for (const title of titles) {
     if (level >= title.minLevel) {
@@ -116,7 +126,9 @@ export function getCurrentTitle(level: number): { name: string; emoji: string } 
   return current;
 }
 
-export function getNextTitle(level: number): { name: string; minLevel: number; emoji: string } | null {
+export function getNextTitle(
+  level: number,
+): { name: string; minLevel: number; emoji: string } | null {
   for (const title of titles) {
     if (level < title.minLevel) {
       return title;
@@ -125,7 +137,11 @@ export function getNextTitle(level: number): { name: string; minLevel: number; e
   return null;
 }
 
-export function getXPProgress(xp: number): { current: number; needed: number; percentage: number } {
+export function getXPProgress(xp: number): {
+  current: number;
+  needed: number;
+  percentage: number;
+} {
   const current = xp % XP_PER_LEVEL;
   return {
     current,
@@ -156,7 +172,9 @@ export function getDaysUntil(dateStr: string): number {
   return Math.ceil(diff / (1000 * 60 * 60 * 24));
 }
 
-export function getMonthlyAnniversaryDate(startDateStr: string): { date: Date; dayOfMonth: number } | null {
+export function getMonthlyAnniversaryDate(
+  startDateStr: string,
+): { date: Date; dayOfMonth: number } | null {
   if (!startDateStr) return null;
   const startDate = new Date(startDateStr);
   const dayOfMonth = startDate.getDate();

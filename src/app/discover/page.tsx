@@ -1,16 +1,11 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Check, BookOpen, ChevronRight } from "lucide-react";
+import { Check, BookOpen, ChevronRight, EyeOff } from "lucide-react";
 import XPBar from "@/components/XPBar";
 import AchievementToast from "@/components/AchievementToast";
 import { discoverQuestions, XP_PER_DISCOVER } from "@/lib/data";
-import {
-  getState,
-  saveState,
-  addXP,
-  checkAchievements,
-} from "@/lib/gameStore";
+import { getState, saveState, addXP, checkAchievements } from "@/lib/gameStore";
 import type { GameState } from "@/lib/types";
 
 const categories = [
@@ -45,14 +40,42 @@ export default function DiscoverPage() {
 
       let newState = addXP({ ...state }, XP_PER_DISCOVER);
       newState.totalDiscovers += 1;
-      newState.completedDiscovers = [...newState.completedDiscovers, questionId];
+      newState.completedDiscovers = [
+        ...newState.completedDiscovers,
+        questionId,
+      ];
 
-      const { state: achievedState, newAchievements: unlocked } = checkAchievements(newState);
+      const { state: achievedState, newAchievements: unlocked } =
+        checkAchievements(newState);
       if (unlocked.length > 0) setNewAchievements(unlocked);
       setState(achievedState);
       saveState(achievedState);
     },
-    [state]
+    [state],
+  );
+
+  const markDismissed = useCallback(
+    (questionId: string) => {
+      if (!state) return;
+      if (
+        state.completedDiscovers.includes(questionId) ||
+        state.dismissedDiscovers.includes(questionId)
+      ) {
+        return;
+      }
+
+      const newState = {
+        ...state,
+        dismissedDiscovers: [...state.dismissedDiscovers, questionId],
+      };
+
+      setState(newState);
+      saveState(newState);
+      if (expandedId === questionId) {
+        setExpandedId(null);
+      }
+    },
+    [state, expandedId],
   );
 
   const saveNote = useCallback(
@@ -61,7 +84,7 @@ export default function DiscoverPage() {
       setNotes(newNotes);
       localStorage.setItem("discover-notes", JSON.stringify(newNotes));
     },
-    [notes]
+    [notes],
   );
 
   if (!state) {
@@ -72,14 +95,24 @@ export default function DiscoverPage() {
     );
   }
 
-  const filteredQuestions = activeCategory === "all"
-    ? discoverQuestions
-    : discoverQuestions.filter((q) => q.category === activeCategory);
+  const activeQuestions = discoverQuestions.filter(
+    (q) => !state.dismissedDiscovers.includes(q.id),
+  );
+
+  const filteredQuestions =
+    activeCategory === "all"
+      ? activeQuestions
+      : activeQuestions.filter((q) => q.category === activeCategory);
 
   const completedCount = state.completedDiscovers.length;
+  const dismissedCount = state.dismissedDiscovers.length;
   const categoryCompleted = filteredQuestions.filter((q) =>
-    state.completedDiscovers.includes(q.id)
+    state.completedDiscovers.includes(q.id),
   ).length;
+  const progressPercentage =
+    filteredQuestions.length === 0
+      ? 0
+      : (categoryCompleted / filteredQuestions.length) * 100;
 
   return (
     <div className="mx-auto max-w-lg px-4 pb-24 pt-6">
@@ -91,8 +124,14 @@ export default function DiscoverPage() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Discover Her</h1>
         <p className="text-sm text-gray-500">
-          Learn something new · {completedCount}/{discoverQuestions.length} answered
+          Learn something new · {completedCount}/{activeQuestions.length}{" "}
+          answered
         </p>
+        {dismissedCount > 0 && (
+          <p className="mt-1 text-xs text-gray-400">
+            {dismissedCount} marked as already known
+          </p>
+        )}
       </div>
 
       <div className="mb-6">
@@ -123,7 +162,7 @@ export default function DiscoverPage() {
           <div
             className="h-full rounded-full bg-pink-400 transition-all duration-500"
             style={{
-              width: `${(categoryCompleted / filteredQuestions.length) * 100}%`,
+              width: `${progressPercentage}%`,
             }}
           />
         </div>
@@ -136,6 +175,7 @@ export default function DiscoverPage() {
       <div className="space-y-2">
         {filteredQuestions.map((q) => {
           const isCompleted = state.completedDiscovers.includes(q.id);
+          const isDismissed = state.dismissedDiscovers.includes(q.id);
           const isExpanded = expandedId === q.id;
 
           return (
@@ -144,7 +184,9 @@ export default function DiscoverPage() {
               className={`rounded-2xl border-2 transition-all ${
                 isCompleted
                   ? "border-pink-200 bg-pink-50/50"
-                  : "border-gray-100 bg-white"
+                  : isDismissed
+                    ? "border-gray-200 bg-gray-50"
+                    : "border-gray-100 bg-white"
               }`}
             >
               <button
@@ -153,6 +195,8 @@ export default function DiscoverPage() {
               >
                 {isCompleted ? (
                   <Check size={18} className="shrink-0 text-pink-500" />
+                ) : isDismissed ? (
+                  <EyeOff size={18} className="shrink-0 text-gray-400" />
                 ) : (
                   <BookOpen size={18} className="shrink-0 text-gray-300" />
                 )}
@@ -176,18 +220,32 @@ export default function DiscoverPage() {
                     className="mb-3 w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-pink-300 focus:ring-1 focus:ring-pink-200"
                     rows={3}
                   />
-                  {!isCompleted && (
-                    <button
-                      onClick={() => markComplete(q.id)}
-                      className="flex items-center gap-1.5 rounded-xl bg-pink-500 px-4 py-2 text-sm font-medium text-white transition-all active:scale-95"
-                    >
-                      <Check size={14} />
-                      I learned this about her
-                    </button>
+                  {!isCompleted && !isDismissed && (
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={() => markComplete(q.id)}
+                        className="flex items-center gap-1.5 rounded-xl bg-pink-500 px-4 py-2 text-sm font-medium text-white transition-all active:scale-95"
+                      >
+                        <Check size={14} />I learned this about her
+                      </button>
+                      <button
+                        onClick={() => markDismissed(q.id)}
+                        className="flex items-center gap-1.5 rounded-xl bg-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-all active:scale-95"
+                      >
+                        <EyeOff size={14} />
+                        Already know this
+                      </button>
+                    </div>
                   )}
                   {isCompleted && notes[q.id] && (
                     <p className="text-xs text-pink-500">
                       💡 You know this! Saved.
+                    </p>
+                  )}
+                  {isDismissed && (
+                    <p className="text-xs text-gray-500">
+                      Hidden from your active discover pool because you already
+                      know it.
                     </p>
                   )}
                 </div>
@@ -196,6 +254,17 @@ export default function DiscoverPage() {
           );
         })}
       </div>
+
+      {filteredQuestions.length === 0 && (
+        <div className="mt-8 rounded-2xl bg-white p-5 text-center shadow-sm">
+          <p className="text-lg font-semibold text-gray-700">
+            No active questions here
+          </p>
+          <p className="mt-1 text-sm text-gray-400">
+            You either completed or already know the questions in this category.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
